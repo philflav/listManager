@@ -1,4 +1,4 @@
-<h1 class="text-4xl text-center my-8 uppercase">List Manager</h1>
+<h1 class="text-4xl text-center my-8 uppercase">List Manager V1.0</h1>
 
 <div>
 	<p>
