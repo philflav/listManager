@@ -108,7 +108,7 @@
 <div class="container m-6 mr-6">
 	{#if $isLoggedIn}
 		<p class="text-base pb-5">
-			Enter shopping list items in field below and then click on the apprpraite shop. Prefix item
+			Enter shopping list items in field below and then click on the appropriate shop. Prefix item
 			with '#' to change the shop name.
 		</p>
 		<input
