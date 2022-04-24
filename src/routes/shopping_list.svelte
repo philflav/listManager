@@ -9,7 +9,8 @@
 		deleteDoc,
 		addDoc,
 		where,
-		query
+		query,
+		setDoc
 	} from 'firebase/firestore';
 
 	import { user, isLoggedIn } from '../stores/stores';
@@ -19,8 +20,16 @@
 	const colRef = collection(db, 'shopping');
 	const q = query(colRef, where('userUID', '==', $user.uid || ''));
 
+	const shopRef = collection(db, 'shops');
+	const qshops = query(shopRef, where('userUID', '==', $user.uid || ''));
+
 	const fbshopping = [];
 	let shopping = [];
+	const shopName = ['shop1', 'shop2', 'shop3'];
+
+	let name1 = 'xx';
+	let name2 = 'xxx';
+	let name0 = 'x';
 
 	const _func = onSnapshot(q, (querySnapshot) => {
 		let fbshopping = [];
@@ -30,13 +39,23 @@
 			fbshopping = [todo, ...fbshopping];
 		});
 		shopping = fbshopping.sort((a, b) => a.shop - b.shop);
-		console.table(shopping);
+	});
+	const _func1 = onSnapshot(qshops, (querySnapshot) => {
+		querySnapshot.forEach((doc) => {
+			shopName[doc.data().index] = { name: doc.data().name, docId: doc.id };
+		});
+		name0 = shopName[0].name;
+		name1 = shopName[1].name;
+		name2 = shopName[2].name;
+		console.log(name0, name1, name2);
 	});
 
 	let newItem = '';
 
 	const addItem = async (shop) => {
-		if (newItem !== '') {
+		if (newItem.slice(0, 1) == '#') {
+			changeName(shop);
+		} else if (newItem !== '') {
 			// console.log(priority);
 			const docRef = await addDoc(collection(db, 'shopping'), {
 				task: newItem,
@@ -46,6 +65,24 @@
 			});
 			newItem = '';
 		}
+	};
+
+	const changeName = async (shop) => {
+		console.log(newItem, shopName[shop].docId);
+		if (shopName[shop].docId != undefined) {
+			console.log('updating ', shopName[shop].docId);
+			await updateDoc(doc(db, 'shops', shopName[shop].docId), {
+				name: newItem.slice(1)
+			});
+		} else {
+			console.log('writing new doc');
+			await addDoc(collection(db, 'shops'), {
+				name: newItem.slice(1),
+				userUID: $user.uid,
+				index: shop
+			});
+		}
+		newItem = '';
 	};
 
 	const keyPressed = (event) => {
@@ -64,40 +101,46 @@
 		await deleteDoc(doc(db, 'shopping', item.id));
 	};
 
-	let placeholder = 'Add a shopping item';
+	let placeholder = 'Add a shopping item or #shopname';
 </script>
 
 <h1 class="text-center my-8 uppercase">{displayName}'s Shopping List</h1>
-<div class="container mx-auto">
+<div class="container m-6 mr-6">
 	{#if $isLoggedIn}
+		<p class="text-base pb-5">
+			Enter shopping list items in field below and then click on the apprpraite shop. Prefix item
+			with '#' to change the shop name.
+		</p>
 		<input
-			class="text-lg6 text-center mx-auto bg-slate-200"
+			class="text-lg4 w-96 text-center m-3 bg-slate-200"
 			type="text"
 			{placeholder}
 			bind:value={newItem}
 		/>
 		<div class="flex flex-col">
 			<button
-				class="bg-green-500 hover:bg-green-700 text-base text-white px-4 rounded-full m-3"
+				class="bg-green-500 hover:bg-green-700 text-base text-white px-4 rounded-full m-3 w-96 drop-shadow-lg "
 				on:click={() => {
 					addItem(0);
 				}}
 			>
-				Shop 1</button
+				{name0}</button
 			>
 			<button
-				class="bg-orange-500 hover:bg-orange-700 text-base text-white px-4 rounded-full m-3"
+				class="bg-orange-500 hover:bg-orange-700 text-base text-white px-4 rounded-full m-3 w-96 drop-shadow-lg"
 				on:click={() => {
 					addItem(1);
 				}}
 			>
-				Shop 2</button
+				{name1}</button
 			>
 			<button
-				class="bg-blue-400 hover:bg-blue-700 text-base text-white px-4 rounded-full m-3"
+				class="bg-blue-400 hover:bg-blue-700 text-base text-white px-4 rounded-full m-3 w-96 drop-shadow-lg"
 				on:click={() => {
 					addItem(2);
-				}}>Shop 3</button
+				}}
+			>
+				{name2}</button
 			>
 		</div>
 

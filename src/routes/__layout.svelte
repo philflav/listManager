@@ -3,12 +3,12 @@
 	import '../styles/global.css';
 </script>
 
-<div class="container pt-16 py-28 text-center">
+<div class="container pt-16 py-2text-center">
 	<Nav />
 	<slot />
 </div>
 
-<footer class="container py-16 text-center">Copyright: Phil Flavin 2022</footer>
+<footer class="container py-20 text-center">Copyright: Phil Flavin 2022</footer>
 
 <style>
 	@tailwind base;
